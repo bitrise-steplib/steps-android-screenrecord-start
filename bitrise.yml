@@ -60,7 +60,6 @@ workflows:
             cp "./$BITRISE_RECORD_ID.mp4" "$BITRISE_DEPLOY_DIR/$BITRISE_RECORD_ID.mp4"
 
             pkill -f qemu-system-i386
-    - deploy-to-bitrise-io:
 
   ci:
     before_run:
