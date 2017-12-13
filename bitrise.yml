@@ -1,21 +1,70 @@
-format_version: 1.4.0
+format_version: 4
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
-  # define these in your .bitrise.secrets.yml
-  - A_SECRET_PARAM: $A_SECRET_PARAM
+  - RELEASE_VERSION: 0.9.0
+  - TEST_RECORD_ID: "testrecord"
+  - TEST_RECORD_ID2: "testrecord_dont_set"
 
 workflows:
   test:
     steps:
+    - avd-manager:
+    - wait-for-android-emulator:
+    - change-workdir:
+        title: Switch working dir to _tmp dir
+        run_if: true
+        inputs:
+        - path: "./_tmp"
+        - is_create_path: true
     - path::./:
-        title: Step Test
+        title: Step Test - Should be successful
         inputs:
         - emulator_serial: emulator-5554
-        - id: testvid
+        - record_id: $TEST_RECORD_ID
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            if [ ! "$TEST_RECORD_ID" == "$BITRISE_RECORD_ID" ]
+            then
+              exit 1
+            fi
+    - path::./:
+        title: Step Test - Should have a fail and be skipped
+        inputs:
+        - record_id: $TEST_RECORD_ID2
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            if [ "$TEST_RECORD_ID2" == "$BITRISE_RECORD_ID" ]
+            then
+              exit 1
+            fi
+    - script:
+        run_if: true
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            sleep 5
+            $ANDROID_HOME/platform-tools/adb -s $BITRISE_EMULATOR_SERIAL shell "killall -INT screenrecord"
+            sleep 5
+            $ANDROID_HOME/platform-tools/adb -s $BITRISE_EMULATOR_SERIAL pull "/data/local/tmp/$BITRISE_RECORD_ID.mp4"
+
+            cp "./$BITRISE_RECORD_ID.mp4" "$BITRISE_DEPLOY_DIR/$BITRISE_RECORD_ID.mp4"
+
+            pkill -f qemu-system-i386
+    - deploy-to-bitrise-io:
+
   ci:
     before_run:
+    - audit-this-step
     - go-tests
     after_run:
     - test
@@ -105,10 +154,10 @@ workflows:
   share-this-step:
     envs:
       # if you want to share this step into a StepLib
-      - MY_STEPLIB_REPO_FORK_GIT_URL:
-      - STEP_ID_IN_STEPLIB:
-      - STEP_GIT_VERION_TAG_TO_SHARE:
-      - STEP_GIT_CLONE_URL:
+      - MY_STEPLIB_REPO_FORK_GIT_URL: $MY_STEPLIB_REPO_FORK_GIT_URL
+      - STEP_ID_IN_STEPLIB: start-android-emulator
+      - STEP_GIT_VERION_TAG_TO_SHARE: $RELEASE_VERSION
+      - STEP_GIT_CLONE_URL: https://github.com/bitrise-steplib/steps-android-screenrecord-start.git
     description: |-
       If this is the first time you try to share a Step you should
       first call: $ bitrise share

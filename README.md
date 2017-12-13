@@ -1,8 +1,6 @@
-# My Awesome Go Step
+# Android Screenrecord Stop
 
-My Awesome Go Step is a solid starting code base for
-a new Step.
-
+Start recording an Android device's screen.
 
 ## How to use this Step
 

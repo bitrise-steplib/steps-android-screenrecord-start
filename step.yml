@@ -1,16 +1,16 @@
-title: "Start Screenrecord Android"
-summary: A short summary of the step. Don't make it too long ;)
-description: A short summary of the step. Don't make it too long ;)
-website: https://github.com/bitrise-steplib/steps-start-screenrecord-android
-source_code_url: https://github.com/bitrise-steplib/steps-start-screenrecord-android
-support_url: https://github.com/bitrise-steplib/steps-start-screenrecord-android/issues
+title: "Android Screenrecord Start"
+summary: Start recording an Android device's screen.
+description: Start recording an Android device's screen.
+website: https://github.com/bitrise-steplib/steps-android-screenrecord-start
+source_code_url: https://github.com/bitrise-steplib/steps-android-screenrecord-start
+support_url: https://github.com/bitrise-steplib/steps-android-screenrecord-start/issues
 host_os_tags:
   - ubuntu
 type_tags:
   - utility
 is_requires_admin_user: true
 is_always_run: false
-is_skippable: false
+is_skippable: true
 deps:
   brew:
   - name: go
@@ -19,12 +19,11 @@ deps:
     bin_name: go
 toolkit:
   go:
-    package_name: github.com/bitrise-steplib/steps-start-screenrecord-android
-run_if: ""
+    package_name: github.com/bitrise-steplib/steps-android-screenrecord-start
 inputs:
-  - id: "record0"
+  - record_id: "record0"
     opts:
-      title: "ID"
+      title: "Record ID"
       summary: Make sure this input's value is unique. This ID will be included in the recorded file's name to be able to separate records, and also `Stop Screenrecord Android` step will need this ID to know which record need to be stopped.
       description: Make sure this input's value is unique. This ID will be included in the recorded file's name to be able to separate records, and also `Stop Screenrecord Android` step will need this ID to know which record need to be stopped.
       is_expand: true
@@ -36,3 +35,9 @@ inputs:
       description: The commands will be sent to the emulator that has the given serial.
       is_expand: true
       is_required: true
+outputs:
+  - BITRISE_RECORD_ID:
+    opts:
+      title: "Record ID"
+      summary: "The started record's ID"
+      description: "The started record's ID"
