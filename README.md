@@ -1,4 +1,4 @@
-# Android Screenrecord Stop
+# Android Screenrecord Start
 
 Start recording an Android device's screen.
 
