@@ -50,7 +50,7 @@ func (configs ConfigsModel) validate() error {
 }
 
 func (model adbModel) shell(commands ...string) (string, error) {
-	cmd := command.New(model.adbBinPath, append([]string{"-s", model.serial, "shell"}, commands...)...)
+	cmd := command.New(model.adbBinPath, append([]string{"-s", model.serial, "exec-out"}, commands...)...)
 	return cmd.RunAndReturnTrimmedCombinedOutput()
 }
 
@@ -96,14 +96,14 @@ func mainE() error {
 
 	adb := adbModel{adbBinPath: adbBinPath, serial: configs.EmulatorSerial}
 
-	out, err := adb.shell("which screenrecord")
+	out, err := adb.shell("echo \"$(which screenrecord)\"")
 	if err != nil {
 		return fmt.Errorf("failed to run adb command, error: %s, output: %s", err, out)
 	}
 	if out == "" {
 		return fmt.Errorf("screenrecord binary is not available on the device")
 	}
-	out, err = adb.shell("ps | grep screenrecord | cat")
+	out, err = adb.shell("echo \"$(pgrep screenrecord)\"")
 	if err != nil {
 		return fmt.Errorf("failed to run adb command, error: %s, output: %s", err, out)
 	}
@@ -123,16 +123,15 @@ func mainE() error {
 		log.Warnf("Failed to export environment (BITRISE_RECORD_ID), error: %s", err)
 	}
 
-	time.Sleep(2 * time.Second)
+	log.Printf("- Check if screenrecord started")
 
-	log.Printf("- Check if screen recording started")
-	out, err = adb.shell("ps | grep screenrecord | cat")
+	time.Sleep(3 * time.Second)
+	out, err = adb.shell("echo \"$(pgrep screenrecord)\"")
 	if err != nil {
 		return fmt.Errorf("failed to run adb command, error: %s, output: %s", err, out)
 	}
-
 	if out == "" {
-		return fmt.Errorf("screenrecord didn't started")
+		return fmt.Errorf("screenrecord not started")
 	}
 
 	log.Donef("- Started")

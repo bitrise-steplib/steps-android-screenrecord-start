@@ -11,6 +11,25 @@ workflows:
   test:
     steps:
     - avd-manager:
+        inputs:
+        - custom_command_flags: "-no-window -no-audio -debug-init -gpu swiftshader"
+        - custom_hw_config: |-
+            disk.dataPartition.size=800M
+            hw.camera.back=emulated
+            hw.camera.front=emulated
+            hw.keyboard=yes
+            hw.gpu.enabled=true
+            hw.gpu.mode=host
+            hw.ramSize=1536
+            hw.lcd.height=426
+            hw.lcd.width=240
+            runtime.network.latency=none
+            runtime.network.speed=full
+            showDeviceFrame=no
+            skin.dynamic=yes
+            skin.path=_no_skin
+            skin.path.backup=_no_skin
+            vm.heapSize=256
     - wait-for-android-emulator:
     - change-workdir:
         title: Switch working dir to _tmp dir
